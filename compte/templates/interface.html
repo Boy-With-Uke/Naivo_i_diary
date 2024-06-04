@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+    <style>
+        body{
+            background-image: url("{% static 'images/back.jpg' %}");
+        }
+    </style>
+    <br><br><br><br>
+    <div class="row">
+        <div class="col-md-4">
+            <a href="{% url 'add-demande'%}" class="btn btn-primary">
+                Enregistrer une nouvelle demande <span class="badge badge-secondary"></span>
+            </a>
+        </div>
+      
+  
+        </div>
+    </div>
+    <br><br>
+    <div class="form-group">
+        <input id="search" class="form-control" type="text" placeholder="Rechercher..." style="width: 400px;">
+    </div>
+    <div>
+        <table class="table table-striped-columns">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Prénom</th>
+                    <th scope="col">Département</th>
+                    <th scope="col">Date de la demande</th>
+                   
+                 
+
+                    <th scope="col">Validité</th>
+                </tr>
+            </thead>
+            <tbody id="myTable">
+                {% if demandes %}
+                    {% for demande in demandes %}
+                        <tr>
+                            <td>{{ demande.pk }}</td>
+                            <td>{{ demande.employer.name }}</td> <!-- Modification ici -->
+                            <td>{{ demande.employer.prenom }}</td> <!-- Modification ici -->
+                            <td>{{ demande.employer.departement }}</td> <!-- Modification ici -->
+                            <td>{{ demande.demande_date }}</td>
+                        
+                            
+                            
+
+                           
+                            <td>
+                                {% if demande.valider %}
+                                <img src="{% static 'images/icon-yes.svg' %}" alt="true" >
+                            {% else %}
+                                <img src="{% static 'images/icon-no.svg' %}" alt="false">
+                            {% endif %}
+                            </td>
+                            
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-white">Aucune demande trouvée</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modifier" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <h5 class="modal-title text-dark text-center" id="exampleModalLabel">Modification</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        
+            <div class="modal-body">
+                <form method="post" id="modification-form">
+                    {% csrf_token %}
+                    <input name="id_modified" type="hidden" id="id_modified">
+                    <label id="label_id" class="text-dark checkbox-inline"><strong id="strong_id">Est-ce que cette demande d'achat est validée?</strong></label><br>
+                   
+                    <input type="radio" id="oui" name="modified" value="true">
+                    <label class="text-white bg-primary" for="oui">Oui</label>
+            
+                    <input type="radio" id="non" name="modified" value="false">
+                    <label class="text-white bg-danger" for="non">Non</label><br>
+            
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-warning">Modifier</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="supprimer" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark" id="exampleModalLabel">Supprimer</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="id_supprimer" id="id_supprimer">
+                    <label id="label_id_s" class="text-dark checkbox-inline"><strong id="strong_id_s">Êtes-vous sûr de vouloir supprimer ?</strong></label>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<br><br>
+<script type="text/javascript">
+    //MODIFICATION
+    $(document).on('click','#btn-facture-mod', function(){
+        let demande_id = $(this).data('id');
+        let employer = $(this).data('employer');
+        $('#id_modified').val(demande_id);
+    })
+    //supprimer 
+    $(document).on('click','#btn-facture-sup', function(){
+        let demande_id = $(this).data('id');
+        let employer = $(this).data('employer');
+        $('#id_supprimer').val(demande_id);
+    })
+
+</script>
+
+{% endblock %}

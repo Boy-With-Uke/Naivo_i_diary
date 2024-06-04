@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="text-capitalize text-center bg-success text-white p-3">Ajouter une demande</h3>
+<form method="post" class="p-5">
+    {% csrf_token %}
+    <div class="form-row">
+        {% if request.user.is_superuser %}
+        <div class="form-group col-md-6">
+            <label for="employer">Employeur</label>
+            <select name="employer" id="employer" class="form-select">
+                <option>Choisir l'employeur...</option>
+                {% for employer in employer %}
+                <option value="{{ employer.id }}">{{ employer.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label for="achat-1">Type d'achat</label>
+            <select name="type_achat-1" id="achat-1" class="form-control">
+                <option>Choisir le type d'achat...</option>
+                {% for key, value in achat_choices %}
+                <option value="{{ key }}">{{ value }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="compte-1">Type de compte</label>
+            <select name="type_compte-1" id="compte-1" class="form-select">
+                <option>Choisir le type de compte...</option>
+                {% for key, value in compte_choices %}
+                <option value="{{ key }}">{{ value }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="besoin-1">Nom du besoin</label>
+            <input required type="text" name="nom_besoin-1" class="form-control" id="besoin-1">
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="prix_unitaire-1">Prix unitaire</label>
+            <input required type="number" min="0" step="0.01" name="prix_unitaire-1" class="form-control prix_unitaire" id="prix_unitaire-1">
+        </div>
+
+        <div class="form-group col-md-1">
+            <label for="nbr-1">Quantité</label>
+            <input required type="number" min="1" step="0.1" name="nombre-1" class="form-control nbr" id="nbr-1">
+        </div>
+        <div class="form-group col-md-2">
+            <label for="total-a-1">Total</label>
+            <input required type="number" min="1" step="0.1" name="total-a-1" class="form-control total-a" id="total-a-1" readonly>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="fournisseur-1">Fournisseur</label>
+            <select name="fournisseur-1" id="fournisseur-1" class="form-select">
+                <option>Choisir le fournisseur...</option>
+                {% for fournisseur in fournisseurs %}
+                <option value="{{ fournisseur.id }}">{{ fournisseur.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+      
+    <div id="wrapper"></div>
+    <div class="form-row">
+        <div class="form-group col-md-12">
+            <label for="total">Total</label>
+            <input value="0" type="number" step="0.1" name="total" readonly class="form-control total" id="total">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-row col-md-12">
+            <label for="commentaire">Commentaire</label>
+            <textarea name="commentaire" id="commentaire" class="form-control" cols="30" rows="3"></textarea>
+        </div>
+    </div>
+    <div class="d-flex mt-2">
+        <button type="submit" class="btn btn-primary btn-sm">Enregistrer</button>
+        <button id="btn-add" type="button" class="btn btn-outline-danger btn-sm">Ajouter une autre demande</button>
+        <button id="btn-remove" type="button" class="btn btn-outline-warning btn-sm">Effacer la dernière demande</button>
+    </div>
+</form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    function updateTotal(element) {
+        let parentRow = $(element).closest('.form-row');
+        let prix = parentRow.find('.prix_unitaire').val();
+        let quantite = parentRow.find('.nbr').val();
+        let total = parseFloat(prix) * parseFloat(quantite);
+        parentRow.find('.total-a').val(total);
+        updateGrandTotal();
+    }
+
+    function updateGrandTotal() {
+        let grandTotal = 0;
+        $('.total-a').each(function() {
+            grandTotal += parseFloat($(this).val()) || 0;
+        });
+        $('#total').val(grandTotal);
+    }
+
+    function bindInputEvents() {
+        $('.prix_unitaire, .nbr').off('input').on('input', function() {
+            updateTotal(this);
+        });
+    }
+
+    $('#btn-add').click(function() {
+        var number = $('#wrapper').children().length + 2;
+        console.log(number)
+        var formAdd = `
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="achat-${number}">Type d'achat</label>
+                    <select name="type_achat-${number}" class="form-control" id="achat-${number}">
+                        <option>Choisir le type d'achat...</option>
+                        {% for key, value in achat_choices %}
+                        <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="compte-${number}">Type de compte</label>
+                    <select name="type_compte-${number}" class="form-control" id="compte-${number}">
+                        <option>Choisir le type de compte...</option>
+                        {% for key, value in compte_choices %}
+                        <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="besoin-${number}">Nom du besoin</label>
+                    <input required type="text" name="nom_besoin-${number}" class="form-control" id="besoin-${number}">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="prix_unitaire-${number}">Prix unitaire</label>
+                    <input required type="number" min="0" step="0.01" name="prix_unitaire-${number}" class="form-control prix_unitaire" id="prix_unitaire-${number}">
+                </div>
+                <div class="form-group col-md-1">
+                    <label for="nbr-${number}">Quantité</label>
+                    <input required type="number" min="1" step="0.1" name="nombre-${number}" class="form-control nbr" id="nbr-${number}">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="total-a-${number}">Total</label>
+                    <input required type="number" min="1" step="0.1" name="total-a-${number}" class="form-control total-a" id="total-a-${number}" readonly>
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="fournisseur-${number}">Fournisseur</label>
+                    <select name="fournisseur-${number}" class="form-control" id="fournisseur-${number}">
+                        <option>Choisir le fournisseur...</option>
+                        {% for fournisseur in fournisseurs %}
+                        <option value="{{ fournisseur.id }}">{{ fournisseur.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        `;
+        $("#wrapper").append(formAdd);
+        bindInputEvents();
+    });
+
+    $('#btn-remove').click(function() {
+        $("#wrapper").children().last().remove();
+        updateGrandTotal();
+    });
+
+    bindInputEvents();
+    $('.prix_unitaire, .nbr').each(function() {
+        updateTotal(this);
+    });
+});
+</script>
+{% endblock %}

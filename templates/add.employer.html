@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<br> <br><br><br>
+<h1 class="text-capitalize text-center mx-10 bg-dark text-white"> Ajouter un employé</h1>
+<form method="post">
+    {% csrf_token %}
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="name">Nom</label>
+            <input type="text" name="name" class="form-control" id="name"
+            placeholder="Nom de l'employé" required> 
+        </div>
+
+        <div class="form-group col-md-4"> 
+            <label for="prenom">Prénom</label>
+            <input type="text" name="prenom" class="form-control" id="prenom"
+            placeholder="Prénom de l'employé" required> 
+        </div>
+        
+        <div class="form-group col-md-4"> 
+            <label for="telephone">Téléphone</label> 
+            <input type="tel" name="telephone" class="form-control" id="telephone"
+            placeholder="Téléphone de l'employé" required> 
+        </div>
+
+        <div class="form-group col-md-4"> 
+            <label for="departement">Département</label>
+            <select name="departement" class="form-control" id="departement" required>
+                <option value="" selected disabled>Choisir un département</option>
+                {% for departement in departements %}
+                    <option value="{{ departement.id }}">{{ departement.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group col-sm-12 col-md-4 col-lg-4">
+            <label class="form-label">Mot de passe :</label>
+            <input type="password" class="form-control" name="password">
+        </div>
+        <div class="form-group col-sm-12 col-md-4 col-lg-4">
+            <label class="form-label">Adresse E-mail:</label>
+            <input type="email" class="form-control" name="email" required>
+        </div>
+
+    </div>
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    <!-- Bouton pour afficher la liste des employeurs -->
+    <a href="{% url 'employer-list' %}">Voir la liste des Employés</a>
+</form>
+{% endblock content %}

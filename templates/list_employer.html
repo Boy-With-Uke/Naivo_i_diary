@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<br> <br>
+<h1 class="text-capitalize text-center mx-10 bg-dark text-white"> Liste des employeurs</h1>
+<ul class="list-group">
+    {% for employer in employers %}
+        <li class="list-group-item  text-dark" >
+            <span>{{ employer.name }}</span> - <span>{{ employer.departement }}</span> - <span>{{ employer.telephone }}</span>
+            <form class="d-inline" method="post" action="{% url 'delete-employer' employer.id %}">
+                {% csrf_token %}
+                <button type="button" class="btn btn-danger delete-employer">Supprimer</button>
+            </form>
+            <a href="{% url 'edit-employer' employer.id %}" class="btn btn-success">Modifier</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock content %}

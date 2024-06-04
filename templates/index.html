@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background-image: url("{% static 'images/back.jpg' %}");
+    }
+</style>
+<div class="container px-5">
+    <br><br>
+    <div class="form-group">
+        <input id="search" class="form-control" type="text" placeholder="Rechercher..." style="width: 400px;">
+    </div>
+    <div>
+        <table class="table table-striped-columns">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Prénom</th>
+                    <th scope="col">Département</th>
+                    <th scope="col">Date de la demande</th>
+                    <th scope="col">Validité</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="myTable">
+                {% if demandes %}
+                    {% for demande in demandes %}
+                        <tr>
+                            <td>{{ demande.pk }}</td>
+                            <td>{{ demande.employer.name }}</td>
+                            <td>{{ demande.employer.prenom }}</td>
+                            <td>{{ demande.employer.departement }}</td>
+                            <td>{{ demande.demande_date }}</td>
+                            <td>
+                                {% if demande.valider %}
+                                    <img src="{% static 'images/icon-yes.svg' %}" alt="true">
+                                {% else %}
+                                    <img src="{% static 'images/icon-no.svg' %}" alt="false">
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'view-demande' pk=demande.pk %}" title="Détail" class="badge badge-success text-white">Détails</a>
+                                <button id="btn-facture-sup" type="button" data-toggle="modal" data-target="#supprimer" class="badge badge-danger text-white" title="Supprimer" data-id="{{ demande.pk }}" data-employer="{{ demande.employer.name }}">Supprimer</button>
+                                <button id="btn-facture-mod" type="button" data-toggle="modal" title="Modifier" data-target="#modifier" class="badge badge-warning text-dark" data-id="{{ demande.pk }}" data-employer="{{ demande.employer.name }}">Modifier</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-white">Aucune demande trouvée</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        {% if demandes.has_other_pages %}
+            <div class="btn-group" role="group" aria-label="Item pagination">
+                {% if demandes.has_previous %}
+                    <a href="?page={{ demandes.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
+                {% endif %}
+                {% for page_number in demandes.paginator.page_range %}
+                    {% if demandes.number == page_number %}
+                        <button class="btn btn-outline-primary active">
+                            <span>{{ page_number }} <span class="sr-only">(current)</span></span>
+                        </button>
+                    {% else %}
+                        <a href="?page={{ page_number }}" class="btn btn-outline-primary">{{ page_number }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if demandes.has_next %}
+                    <a href="?page={{ demandes.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="modal fade" id="modifier" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <h5 class="modal-title text-dark text-center" id="exampleModalLabel">Modification</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div class="modal-body">
+                <form method="post" id="modification-form">
+                    {% csrf_token %}
+                    <input name="id_modified" type="hidden" id="id_modified">
+                    <label id="label_id" class="text-dark checkbox-inline"><strong id="strong_id">Est-ce que cette demande d'achat est validée?</strong></label><br>
+                    <input type="radio" id="oui" name="modified" value="true">
+                    <label class="text-white bg-primary" for="oui">Oui</label>
+                    <input type="radio" id="non" name="modified" value="false">
+                    <label class="text-white bg-danger" for="non">Non</label><br>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-warning">Modifier</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="supprimer" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark" id="exampleModalLabel">Supprimer</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="id_supprimer" id="id_supprimer">
+                    <label id="label_id_s" class="text-dark checkbox-inline"><strong id="strong_id_s">Êtes-vous sûr de vouloir supprimer ?</strong></label>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br><br>
+<script type="text/javascript">
+    //MODIFICATION
+    $(document).on('click','#btn-facture-mod', function(){
+        let demande_id = $(this).data('id');
+        let employer = $(this).data('employer');
+        $('#id_modified').val(demande_id);
+    })
+    //SUPPRIMER
+    $(document).on('click','#btn-facture-sup', function(){
+        let demande_id = $(this).data('id');
+        let employer = $(this).data('employer');
+        $('#id_supprimer').val(demande_id);
+    })
+    //RECHERCHE
+    $(document).ready(function(){
+        $("#search").on("keyup", function(){
+            var value = $(this).val().toLowerCase();
+            $("#myTable tr").filter(function(){
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>
+{% endblock %}

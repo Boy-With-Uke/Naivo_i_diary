@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="text-capitalize text-center text-white mb-4 p-3 bg-success">Modifier l'utilisateur</h1>
+<form method="post" class="container">
+  {% csrf_token %}
+  <div class="row">  <div class="col-md-6 mb-3">
+      <label for="username">Nom d'utilisateur :</label>
+      <input type="text" id="username" name="username" value="{{ user.username }}" class="form-control" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label for="first_name">Prénom :</label>
+      <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control" required>
+    </div>
+  </div>
+  <div class="row">  <div class="col-md-6 mb-3">
+      <label for="last_name">Nom de famille :</label>
+      <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="form-control" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label for="email">Email :</label>
+      <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" required>
+    </div>
+  </div>
+  <div class="row">  <div class="col-md-6 mb-3">
+      <label for="password">Nouveau mot de passe :</label>
+      <input type="password" id="password" name="password" class="form-control">
+    </div>
+    <div class="col-md-6 mb-3">
+      <label for="password_confirmation">Confirmer le nouveau mot de passe :</label>
+      <input type="password" id="password_confirmation" name="password_confirmation" class="form-control">
+    </div>
+  </div>
+  <button type="submit" class="btn btn-success">Modifier</button>
+</form>
+
+{% endblock %}

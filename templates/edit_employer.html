@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<br> <br>
+<h1 class="text-capitalize text-center mx-10 bg-dark text-white"> Modifier l'employeur</h1>
+<form method="post">
+    {% csrf_token %}
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="name">Nom</label>
+            <input type="text" name="name" class="form-control" id="name"
+            placeholder="Nom de l'employé" value="{{ employer.name }}"> 
+        </div>
+
+        <div class="form-group col-md-4"> 
+            <label for="prenom">Prénom</label>
+            <input type="text" name="prenom" class="form-control" id="prenom"
+            placeholder="Prénom de l'employé" value="{{ employer.prenom }}"> 
+        </div>
+
+        <div class="form-group col-md-4"> 
+            <label for="telephone">Téléphone</label> 
+            <input type="tel" name="telephone" class="form-control" id="telephone"
+            placeholder="Téléphone de l'employé" value="{{ employer.telephone }}"> 
+        </div>
+
+        <div class="form-group col-md-4"> 
+            <label for="departement">Département</label>
+            <input type="text" name="departement" class="form-control" id="departement"
+            placeholder="Département de l'employé" value="{{ employer.departement }}"> 
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+</form>
+{% endblock content %}
